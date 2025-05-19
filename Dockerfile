@@ -22,6 +22,7 @@ WORKDIR /app
 COPY . .
 RUN cargo build --target x86_64-unknown-linux-musl --release
 
+RUN mkdir /data
 
 # --- final image
 
@@ -29,8 +30,10 @@ FROM scratch
 
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
+COPY --from=builder --chown=app /data /data
 
 WORKDIR /app
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/wastebin ./
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/wastebin-ctl ./
 USER app:app
 CMD ["/app/wastebin"]
